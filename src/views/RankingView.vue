@@ -3,6 +3,10 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchRanking, RankingItem } from '../services/api';
 
+const props = defineProps<{
+  isGameActive: boolean
+}>();
+
 const router = useRouter();
 const rankingData = ref<RankingItem[]>([]);
 const isLoading = ref(true);
@@ -29,9 +33,7 @@ onMounted(async () => {
 });
 
 function returnToHome() {
-  const isInGame = sessionStorage.getItem('gameActive') === 'true';
-  
-  if (isInGame) {
+  if (props.isGameActive) {
     if (confirm('Quitter la partie en cours? Votre progression sera perdue.')) {
       router.push('/');
     }

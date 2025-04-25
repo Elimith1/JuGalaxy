@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+
+const props = defineProps<{
+  isGameActive: boolean
+}>();
 
 const route = useRoute();
 const router = useRouter();
 const showConfirmation = ref(false);
 const pendingRoute = ref('');
 
-const isInGame = () => {
-  return sessionStorage.getItem('gameActive') === 'true';
-};
-
 const navigate = (path: string) => {
-  if (isInGame()) {
+  if (props.isGameActive) {
     pendingRoute.value = path;
     showConfirmation.value = true;
   } else {
@@ -73,7 +73,6 @@ const cancelNavigation = () => {
           </div>
         </div>
       </div>
-      <div class="modal-backdrop fade show"></div>
     </div>
   </nav>
 </template>

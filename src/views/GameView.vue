@@ -1,21 +1,34 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
+defineProps<{
+  isGameActive: boolean
+}>();
+
+const emit = defineEmits<{
+  (e: 'setGameActive', value: boolean): void
+}>();
+
 const router = useRouter();
+const showConfirmation = ref(false);
 
 onMounted(() => {
-  sessionStorage.setItem('gameActive', 'true');
-});
-
-onBeforeUnmount(() => {
+  emit('setGameActive', true);
 });
 
 function quitGame() {
-  if (confirm('Êtes-vous sûr de vouloir abandonner la partie ? Votre progression sera perdue.')) {
-    sessionStorage.removeItem('gameActive');
-    router.push('/');
-  }
+  showConfirmation.value = true;
+}
+
+function confirmQuit() {
+  emit('setGameActive', false);
+  router.push('/');
+  showConfirmation.value = false;
+}
+
+function cancelQuit() {
+  showConfirmation.value = false;
 }
 </script>
 
@@ -29,6 +42,25 @@ function quitGame() {
       <button class="btn btn-danger" @click="quitGame">
         Abandonner la partie
       </button>
+    </div>
+    
+    <div class="modal" :class="{ 'd-block': showConfirmation }" tabindex="-1" v-if="showConfirmation">
+      <!-- changer tabindex=-1 (fix temporaire)-->
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Attention</h5>
+            <button type="button" class="btn-close" @click="cancelQuit"></button>
+          </div>
+          <div class="modal-body">
+            <p>Si vous quittez maintenant, vous perdrez votre partie en cours. Êtes-vous sûr de vouloir continuer ?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="cancelQuit">Annuler</button>
+            <button type="button" class="btn btn-danger" @click="confirmQuit">Quitter</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
