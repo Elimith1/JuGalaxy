@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { fetchRanking, RankingItem } from '../services/api';
+import { fetchRanking } from '../services/api';
+import type { RankingItem } from '../services/api'
 
 const props = defineProps<{
   isGameActive: boolean
