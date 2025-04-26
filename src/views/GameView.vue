@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import type { PlayerCharacter } from '../types/types.ts';
-import { gameState } from '@/types/types';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import type { Enemy } from '../types/types.ts';
+import { playerNameState, shipNameState } from '../types/types';
+import EnemyStats from '../components/EnemyStats.vue';
 
 const props = defineProps<{
   isGameActive: boolean
@@ -13,25 +14,39 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
-const route = useRoute();
 
 const showConfirmation = ref(false);
 const currentMission = ref(1);
 
-const playerName = (route.params.playerName as string) || '';
-const shipName = (route.params.shipName as string) || '';
+const playerName = ref(playerNameState.value);
+const playerExperience = ref('Maitre');
+const playerCredits = ref(0);
+const playerShipName = ref(shipNameState.value);
+const playerHealth = ref(100);
 
-const playerCharacter = reactive<PlayerCharacter>({
-  name: gameState.playerName,
-  experience: 'Maitre',
-  credits: 0,
-  shipName: gameState.shipName,
-  health: 100
-});
+const currentEnemy = ref<Enemy | null>(null);
 
+// J'ai demander beaucoup d'aide à mon ami ChatGPT pour m'aider avec la fonction.
+async function fetchRandomEnemy() {
+  const response = await fetch(`http://127.0.0.1:3000/characters`);
+  const characters = await response.json();
+  
+  const randomIndex = Math.floor(Math.random() * characters.length);
+  const character = characters[randomIndex];
+  
+  currentEnemy.value = {
+    id: character.id,
+    name: character.name,
+    experience: character.experience,
+    credits: character.credit,
+    shipName: character.ship.name,
+    health: 100
+  };
+}
 
 onMounted(() => {
   emit('setGameActive', true);
+  fetchRandomEnemy();
 });
 
 function quitGame() {
@@ -60,19 +75,19 @@ function cancelQuit() {
           <div class="card-body">
             <div class="mb-3">
               <h6>Nom:</h6>
-              <p class="text-primary fw-bold">{{ playerCharacter.name }}</p>
+              <p class="text-primary fw-bold">{{ playerName }}</p>
             </div>
             <div class="mb-3">
               <h6>Expérience:</h6>
-              <p class="text-success">{{ playerCharacter.experience }}</p>
+              <p class="text-success">{{ playerExperience }}</p>
             </div>
             <div class="mb-3">
               <h6>Crédits Galactiques:</h6>
-              <p class="text-warning fw-bold">{{ playerCharacter.credits }} CG</p>
+              <p class="text-warning fw-bold">{{ playerCredits }} CG</p>
             </div>
             <div class="mb-3">
               <h6>Vaisseau:</h6>
-              <p>{{ playerCharacter.shipName }}</p>
+              <p>{{ playerShipName }}</p>
             </div>
             <div>
               <h6>Vie du vaisseau:</h6>
@@ -80,17 +95,14 @@ function cancelQuit() {
                 <div 
                   class="progress-bar" 
                   role="progressbar" 
-                  :style="{ width: playerCharacter.health + '%' }"
+                  :style="{ width: playerHealth + '%' }"
                   :class="{
-                    'bg-success': playerCharacter.health > 60,
-                    'bg-warning': playerCharacter.health > 30 && playerCharacter.health <= 60,
-                    'bg-danger': playerCharacter.health <= 30
+                    'bg-success': playerHealth > 60,
+                    'bg-warning': playerHealth > 30 && playerHealth <= 60,
+                    'bg-danger': playerHealth <= 30
                   }"
-                  :aria-valuenow="playerCharacter.health" 
-                  aria-valuemin="0" 
-                  aria-valuemax="100"
                 >
-                  {{ playerCharacter.health }}%
+                  {{ playerHealth }}%
                 </div>
               </div>
             </div>
@@ -108,11 +120,16 @@ function cancelQuit() {
       </div>
       
       <div class="col-md-8">
-        <div class="card shadow">
+        <div class="card shadow mb-4">
           <div class="card-header bg-dark text-white">
             <h5 class="mb-0">Zone de combat</h5>
           </div>
           <div class="card-body">
+            <EnemyStats :enemy="currentEnemy" />
+            
+            <div class="d-flex justify-content-center gap-3 mt-3">
+              <button class="btn btn-danger">Attaquer</button>
+            </div>
           </div>
         </div>
       </div>
