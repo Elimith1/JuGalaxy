@@ -94,7 +94,7 @@ function attack() {
   if (playerHealth.value <= 0) {
     showDefeatModal.value = true;
   } 
-  
+
   else if (currentEnemy.value.health <= 0) {
     const creditsWon = currentEnemy.value.credits;
     playerCredits.value += creditsWon;
@@ -272,7 +272,7 @@ onMounted(() => {
 
     <div class="text-center mt-4">
       <button class="btn btn-danger btn-lg" @click="quitGame">
-        Abandonner la mission
+        Quitter la partie
       </button>
     </div>
     <div v-if="showConfirmation" class="modal fade show d-block" tabindex="-1">

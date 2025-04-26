@@ -14,6 +14,7 @@ const emit = defineEmits<{
 const playerName = ref('');
 const selectedShip = ref('');
 const errorMessage = ref('');
+const errorMessages = ref<string[]>([]);
 
 const availableShips = ref([
   { id: 20, name: "Millennium Falcon" },
@@ -30,16 +31,23 @@ onMounted(() => {
 });
 
 const startGame = () => {
+  const errors = [];
+  
   if (!playerName.value) {
-    errorMessage.value = "Veuillez entrer un nom de personnage";
-    return;
+    errors.push("Veuillez entrer un nom de personnage");
   }
 
   if (!selectedShip.value) {
-    errorMessage.value = "Veuillez sélectionner un vaisseau";
+    errors.push("Veuillez sélectionner un vaisseau");
+  }
+  
+  if (errors.length > 0) {
+    errorMessages.value = errors;
     return;
   }
-
+  
+  errorMessages.value = [];
+  
   playerNameState.value = playerName.value;
   const selectedShipObject = availableShips.value.find(ship => ship.id.toString() === selectedShip.value.toString());
   shipNameState.value = selectedShipObject ? selectedShipObject.name : "";
@@ -59,9 +67,13 @@ const startGame = () => {
           <div class="card-body p-4">
             <h2 class="card-title text-center mb-4">Nouvelle partie</h2>
             
-            <div v-if="errorMessage" class="alert alert-danger" role="alert">
-              {{ errorMessage }}
-            </div>
+            <div v-if="errorMessages.length > 0" class="alert alert-danger" role="alert">
+              <ul class="mb-0">
+                <li v-for="(message, index) in errorMessages" :key="index">
+                  {{ message }}
+                </li>
+              </ul>
+          </div>
             
             <div class="mb-3">
               <label for="playerName" class="form-label">Nom du personnage:</label>
