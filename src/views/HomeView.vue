@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { gameState } from '@/types/types';
 
 defineProps<{
   isGameActive: boolean
@@ -33,14 +34,19 @@ const startGame = () => {
     errorMessage.value = "Veuillez entrer un nom de personnage";
     return;
   }
-  
+
   if (!selectedShip.value) {
     errorMessage.value = "Veuillez sélectionner un vaisseau";
     return;
   }
-  
+
+  gameState.playerName = playerName.value;
+  const selectedShipObject = availableShips.value.find(ship => ship.id.toString() === selectedShip.value.toString());
+  gameState.shipName = selectedShipObject ? selectedShipObject.name : "";
+
   router.push('/game');
 };
+
 </script>
 
 <template>

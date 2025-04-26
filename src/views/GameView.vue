@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import type { PlayerCharacter } from '../types/types.ts';
+import { gameState } from '@/types/types';
 
 const props = defineProps<{
-  isGameActive: boolean,
-  playerName?: string,
-  shipName?: string
+  isGameActive: boolean
 }>();
 
 const emit = defineEmits<{
@@ -14,39 +13,25 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
+const route = useRoute();
+
 const showConfirmation = ref(false);
 const currentMission = ref(1);
 
+const playerName = (route.params.playerName as string) || '';
+const shipName = (route.params.shipName as string) || '';
+
 const playerCharacter = reactive<PlayerCharacter>({
-  name: props.playerName || '',
+  name: gameState.playerName,
   experience: 'Maitre',
   credits: 0,
-  shipName: props.shipName || '',
+  shipName: gameState.shipName,
   health: 100
 });
 
-watch(() => props.playerName, (newName) => {
-  if (newName) {
-    playerCharacter.name = newName;
-  }
-});
-
-watch(() => props.shipName, (newShipName) => {
-  if (newShipName) {
-    playerCharacter.shipName = newShipName;
-  }
-});
 
 onMounted(() => {
   emit('setGameActive', true);
-  
-  if (props.playerName) {
-    playerCharacter.name = props.playerName;
-  }
-  
-  if (props.shipName) {
-    playerCharacter.shipName = props.shipName;
-  }
 });
 
 function quitGame() {
@@ -126,6 +111,8 @@ function cancelQuit() {
         <div class="card shadow">
           <div class="card-header bg-dark text-white">
             <h5 class="mb-0">Zone de combat</h5>
+          </div>
+          <div class="card-body">
           </div>
         </div>
       </div>
