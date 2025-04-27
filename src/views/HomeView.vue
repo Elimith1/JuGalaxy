@@ -48,6 +48,7 @@ const startGame = () => {
   
   errorMessages.value = [];
   
+  // J'ai demander un peu d'aide a ChatGPT ici car j'etais perdu (Mathieu) 
   playerNameState.value = playerName.value;
   const selectedShipObject = availableShips.value.find(ship => ship.id.toString() === selectedShip.value.toString());
   shipNameState.value = selectedShipObject ? selectedShipObject.name : "";
